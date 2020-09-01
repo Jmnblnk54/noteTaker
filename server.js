@@ -5,16 +5,15 @@ var db = require("./data/db.json");
 var path = require("path");
 var fs = require("fs");
 
-console.log(db);
-
 // Sets up the Express App
 // =============================================================
 var app = express();
 var PORT = process.env.PORT || 3000;
 
 // Sets up the Express app to handle data parsing
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static("public"));
 
 app.get("/notes", function (req, res) {
@@ -26,37 +25,21 @@ app.get("/", function (req, res) {
 });
 
 app.get("/api/notes", function (req, res) {
-  fs.readFile("data/db.json", "utf8", (err, data) => {
-    if (err) throw err;
-    let notes = JSON.parse(data);
-    res.json(notes);
-  });
+  res.json(db);
 });
 
 app.post("/api/notes", function (req, res) {
-  fs.readFile("data/db.json", "utf8", (err, data) => {
-    if (err) throw err;
-    let notes = JSON.parse(data);
-    res.json(notes);
-
-    var newNote = req.body;
-
-    console.log(newNote);
-
-    notes.push(newNote);
-
-    res.json(newNote);
-  });
+  let newNote = req.body;
+  db.push(newNote);
+  console.log(db, "NOTES");
+  res.send(db)
 });
 
 app.delete("/api/notes/:id", function (req, res) {
-  db.Note.destroy({
-    where: {
-      id: req.params.id,
-    },
-  }).then(function (dbNote) {
-    res.json(dbNote);
-  });
+    const noteId = req.params.id;
+    console.log("Here's the noteID: ", noteId)
+    db.splice(noteId-1, 1);
+    res.send(db)
 });
 
 // If no matching route is found default to home
